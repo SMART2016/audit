@@ -1,0 +1,49 @@
+version: '3.8'
+services:
+  user-service:
+    build: ./user-service/
+    ports:
+      - "8080:8080"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.2
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+
+  trino:
+    image: trinodb/trino
+    user: "root"
+    ports:
+      - "8000:8080"
+    environment:
+      - TRINO_NODE_ID=ffffffff-ffff-ffff-ffff-ffffffffffff
+      - TRINO_DISCOVERY_URI=http://trino:8000
+    volumes:
+      - ./trino/etc:/etc/trino
+    networks:
+      - elastic
+
+  syslog-ng:
+    image: balabit/syslog-ng:latest
+    volumes:
+      - ./syslog-ng.conf:/etc/syslog-ng/syslog-ng.conf
+    ports:
+      - "514:514"
+      - "601:601"
+    networks:
+      - elastic
+
+networks:
+  elastic:
+    driver: bridge
+
+volumes:      
+  esdata:
+    driver: local
