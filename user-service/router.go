@@ -6,12 +6,12 @@ type Router struct{}
 
 func (r Router) getRoutes() *mux.Router {
 	router := mux.NewRouter()
-
-	router.HandleFunc("/user", createUser).Methods("POST")
-	router.HandleFunc("/user/{id}", updateUser).Methods("PUT")
-	router.HandleFunc("/user/{id}", deleteUser).Methods("DELETE")
-	router.HandleFunc("/user/{id}", getUser).Methods("GET")
-	router.HandleFunc("/health", health).Methods("GET")
+	userRouter := router.PathPrefix("/user-service/v1").Subrouter()
+	userRouter.HandleFunc("/users", createUser).Methods("POST")
+	userRouter.HandleFunc("/users/{id}", updateUser).Methods("PUT")
+	userRouter.HandleFunc("/users/{id}", deleteUser).Methods("DELETE")
+	userRouter.HandleFunc("/users/{id}", getUser).Methods("GET")
+	userRouter.HandleFunc("/health", health).Methods("GET")
 
 	return router
 }
