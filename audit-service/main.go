@@ -2,9 +2,8 @@ package main
 
 import (
 	auditlog "github.com/sirupsen/logrus"
-	"log"
+	"gopkg.in/natefinch/lumberjack.v2"
 	"net/http"
-	"os"
 )
 
 const (
@@ -13,12 +12,16 @@ const (
 )
 
 func init() {
-	file, err := os.OpenFile("service.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatal("Failed to open log file: ", err)
-	}
+	//file, err := os.OpenFile("service.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	auditlog.SetOutput(&lumberjack.Logger{
+		Filename:   "./logs/service.log", // Log file path
+		MaxSize:    1,                    // Maximum size of a log file before rotation (in megabytes)
+		MaxBackups: 3,                    // Maximum number of old log files to retain
+		MaxAge:     28,                   // Maximum number of days to retain an old log file
+		Compress:   true,                 // Compress/zip old log files
+	})
 
-	auditlog.SetOutput(file)
+	//auditlog.SetOutput(file)
 	// Set log level
 	auditlog.SetLevel(auditlog.InfoLevel)
 

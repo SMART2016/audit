@@ -8,6 +8,7 @@ require (
 	github.com/segmentio/kafka-go v0.4.47
 	github.com/sirupsen/logrus v1.9.3
 	github.com/vjeantet/grok v1.0.1
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
 require (
