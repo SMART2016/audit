@@ -6,39 +6,82 @@ services:
       - "8080:8080"
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.2
+    container_name: es-container
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.2
     environment:
-      - discovery.type=single-node
-    ports:
-      - "9200:9200"
-      - "9300:9300"
+      - xpack.security.enabled=false
+      - "discovery.type=single-node"
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+      - "ES_JAVA_OPTS=-Xmx2g -Xms2g"
     volumes:
       - esdata:/usr/share/elasticsearch/data
+    #network_mode: "host"
+    ports:
+      - 9200:9200
+      - 9300:9300
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
     networks:
       - elastic
 
-  trino:
-    image: trinodb/trino
-    user: "root"
+  dejavu:
+    image: appbaseio/dejavu:3.6.0
+    container_name: dejavu
     ports:
-      - "8000:8080"
+      - '1358:1358'
+    links:
+      - elasticsearch
+    networks:
+      - elastic
+
+
+  zookeeper:
+    container_name: zookeeper
+    image: 'docker.io/bitnami/zookeeper:3-debian-10'
+    ports:
+      - '2181:2181'
+    volumes:
+      - zookeeper_data:/bitnami
+    networks:
+      - elastic
     environment:
-      - TRINO_NODE_ID=ffffffff-ffff-ffff-ffff-ffffffffffff
-      - TRINO_DISCOVERY_URI=http://trino:8000
-    volumes:
-      - ./trino/etc:/etc/trino
-    networks:
-      - elastic
+      - ALLOW_ANONYMOUS_LOGIN=yes
 
-  syslog-ng:
-    image: balabit/syslog-ng:latest
-    volumes:
-      - ./syslog-ng.conf:/etc/syslog-ng/syslog-ng.conf
+  kafka:
+      container_name: kafka
+      image: 'docker.io/bitnami/kafka:2-debian-10'
+      ports:
+        - '9092:9092'
+        - '9093:9093'
+      volumes:
+        - kafka_data:/bitnami
+      networks:
+        - elastic
+      environment:
+        - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+        - ALLOW_PLAINTEXT_LISTENER=yes
+        - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+        - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:9093
+        - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka:9092,EXTERNAL://localhost:9093
+        - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+        - KAFKA_DELETE_TOPIC_ENABLE=true
+        - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+      depends_on:
+        - zookeeper
+
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
     ports:
-      - "514:514"
-      - "601:601"
+      - '28180:8080'
     networks:
       - elastic
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
 
 networks:
   elastic:
@@ -46,4 +89,8 @@ networks:
 
 volumes:      
   esdata:
+    driver: local
+  zookeeper_data:
+    driver: local
+  kafka_data:
     driver: local

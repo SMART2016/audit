@@ -6,8 +6,9 @@ import (
 	"time"
 )
 
-func logRequestDetails(r *http.Request, action string) {
-	log.Printf("Action: %s, IP: %s, Agent: %s, Time: %s\n",
+func logRequestDetails(r *http.Request, action string, serviceId string) {
+	log.Printf("CurrentUser: %s, System: %s, Action: %s, IP: %s, Agent: %s, Time: %s\n",
+		serviceId,
 		action,
 		r.RemoteAddr,
 		r.UserAgent(),

@@ -7,11 +7,15 @@ import (
 	"net/http"
 )
 
+const (
+	service_id = "user-service"
+)
+
 func createUser(w http.ResponseWriter, r *http.Request) {
 	var user User
 	json.NewDecoder(r.Body).Decode(&user)
 	users = append(users, user)
-	logRequestDetails(r, "CREATE")
+	logRequestDetails(r, "CREATE", service_id)
 	json.NewEncoder(w).Encode(user)
 }
 
@@ -23,7 +27,7 @@ func updateUser(w http.ResponseWriter, r *http.Request) {
 	for i, user := range users {
 		if user.ID == id {
 			users[i] = updatedUser
-			logRequestDetails(r, "UPDATE")
+			logRequestDetails(r, "UPDATE", service_id)
 			json.NewEncoder(w).Encode(updatedUser)
 			return
 		}
@@ -38,7 +42,7 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 	for i, user := range users {
 		if user.ID == id {
 			users = append(users[:i], users[i+1:]...)
-			logRequestDetails(r, "DELETE")
+			logRequestDetails(r, "DELETE", service_id)
 			w.WriteHeader(http.StatusOK)
 			return
 		}
@@ -52,7 +56,7 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 
 	for _, user := range users {
 		if user.ID == id {
-			logRequestDetails(r, "READ")
+			logRequestDetails(r, "READ", service_id)
 			json.NewEncoder(w).Encode(user)
 			return
 		}
@@ -63,6 +67,6 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 
 func health(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Hello User")
-	logRequestDetails(r, "HEALTH")
+	logRequestDetails(r, "HEALTH", service_id)
 	json.NewEncoder(w).Encode("I am Healthy")
 }
