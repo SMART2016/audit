@@ -4,8 +4,21 @@ import (
 	"context"
 	"fmt"
 	"github.com/segmentio/kafka-go"
+	auditlog "github.com/sirupsen/logrus"
 	"log"
 )
+
+func startKafkaConsumer(logNormalizer LogNormalizer) {
+	brokers := []string{"localhost:9093"}
+	topic := "log_events_topic"
+	logsChan := consumeKafkaMessages(brokers, topic)
+	for logMsg := range logsChan {
+		// Normalize your log message
+		normalizedLog := logNormalizer.normalizeLog(USER_SERVICE_LOG_TYPE, logMsg)
+		auditlog.Info(normalizedLog)
+		getNewElasticsearchClient().pushLogEvents(normalizedLog)
+	}
+}
 
 func consumeKafkaMessages(brokers []string, topic string) <-chan string {
 	r := kafka.NewReader(kafka.ReaderConfig{
