@@ -7,3 +7,5 @@
 - Then Hit localhost:8080/health to hit the rest API , where we can generate events 
   - It is a simple user service with which you can create/read/update/delet user and these will be the events that will be logged for the current user who is performing the action.
   - The idea is to answere Who, When, Where and What thats all.
+- Running elastic search Ui:
+  - docker run -p 9000:8080 -e ELASTICVUE_CLUSTERS='[{"name": "dev cluster", "uri": "http://localhost:9300"}]' cars10/elasticvue

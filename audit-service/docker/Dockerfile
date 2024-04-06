@@ -16,17 +16,17 @@ COPY .. ./
 # Build the binary.
 # -o myapp specifies the output filename (myapp)
 #RUN CGO_ENABLED=0 GOOS=linux go build -v -o user-service
-RUN go build -v -o user-service
+RUN go build -v -o audit-service
 
 # Use the official Debian slim image for a lean production container.
 FROM debian:buster-slim
 WORKDIR /root/
 
 # Copy the binary to the production image from the builder stage.
-COPY --from=builder /app/user-service .
+COPY --from=builder /app/audit-service .
 
 # Service listens on port 8080.
-EXPOSE 8080
+EXPOSE 9090
 
 # Run the web service on container startup.
-CMD ["./user-service"]
+CMD ["./audit-service"]

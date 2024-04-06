@@ -11,6 +11,8 @@ const (
 	service_id = "user-service"
 )
 
+var users = []User{}
+
 func createUser(w http.ResponseWriter, r *http.Request) {
 	var user User
 	json.NewDecoder(r.Body).Decode(&user)

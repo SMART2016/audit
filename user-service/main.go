@@ -5,8 +5,6 @@ import (
 	"net/http"
 )
 
-var users = []User{}
-
 func main() {
-	log.Fatal(http.ListenAndServe(":8080", Router{}.getRoutes()))
+	log.Fatal(http.ListenAndServe(":8181", Router{}.getRoutes()))
 }

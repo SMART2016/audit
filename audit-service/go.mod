@@ -5,6 +5,7 @@ go 1.22
 require (
 	github.com/elastic/go-elasticsearch/v8 v8.13.0
 	github.com/segmentio/kafka-go v0.4.47
+	github.com/sirupsen/logrus v1.9.3
 	github.com/vjeantet/grok v1.0.1
 )
 
@@ -17,4 +18,5 @@ require (
 	go.opentelemetry.io/otel v1.21.0 // indirect
 	go.opentelemetry.io/otel/metric v1.21.0 // indirect
 	go.opentelemetry.io/otel/trace v1.21.0 // indirect
+	golang.org/x/sys v0.14.0 // indirect
 )
