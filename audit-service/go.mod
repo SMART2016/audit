@@ -4,6 +4,7 @@ go 1.22
 
 require (
 	github.com/elastic/go-elasticsearch/v8 v8.13.0
+	github.com/gorilla/mux v1.8.1
 	github.com/segmentio/kafka-go v0.4.47
 	github.com/sirupsen/logrus v1.9.3
 	github.com/vjeantet/grok v1.0.1

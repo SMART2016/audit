@@ -1,7 +1,9 @@
 package main
 
 import (
-	log "github.com/sirupsen/logrus"
+	auditlog "github.com/sirupsen/logrus"
+	"log"
+	"net/http"
 	"os"
 )
 
@@ -16,43 +18,29 @@ func init() {
 		log.Fatal("Failed to open log file: ", err)
 	}
 
-	log.SetOutput(file)
+	auditlog.SetOutput(file)
 	// Set log level
-	log.SetLevel(log.InfoLevel)
+	auditlog.SetLevel(auditlog.InfoLevel)
 
 	// Use JSON formatter
-	log.SetFormatter(&log.JSONFormatter{})
+	auditlog.SetFormatter(&auditlog.JSONFormatter{})
 }
 
 func main() {
-	brokers := []string{"localhost:9093"}
-	topic := "log_events_topic"
-	//elasticsearchAddresses := "http://localhost:9200"
 	logNormalizer := LogNormalizer{make(map[string]string)}
 	logNormalizer.registerLogPatterns(USER_SERVICE_LOG_TYPE, USER_SERVICE_LOG_PATTERN)
-	//esClient := createElasticsearchClient(elasticsearchAddresses)
-	logsChan := consumeKafkaMessages(brokers, topic)
+	// Starting Audit-service API
+	go http.ListenAndServe(":9191", Router{}.getRoutes())
 
+	//Starting Audit service kafka consumer for log events from various sources.
+	brokers := []string{"localhost:9093"}
+	topic := "log_events_topic"
+	logsChan := consumeKafkaMessages(brokers, topic)
 	for logMsg := range logsChan {
 		// Normalize your log message
 		normalizedLog := logNormalizer.normalizeLog(USER_SERVICE_LOG_TYPE, logMsg)
-		log.Info(normalizedLog)
-		// Push to Elasticsearch
-		//req := esapi.IndexRequest{
-		//	Index:      "index-log-events",
-		//	DocumentID: strconv.Itoa(time.Now().Nanosecond()), // Example ID, consider a better one
-		//	Body:       strings.NewReader(normalizedLog),
-		//	Refresh:    "true",
-		//}
-		//res, err := req.Do(context.Background(), esClient)
-		//if err != nil {
-		//	log.Fatalf("Error getting response: %s", err)
-		//}
-		//defer res.Body.Close()
-		//if res.IsError() {
-		//	log.Printf("[%s] Error indexing document ID=%d", res.Status(), req.DocumentID)
-		//} else {
-		//	log.Printf("Document ID=%d indexed.", req.DocumentID)
-		//}
+		auditlog.Info(normalizedLog)
+		getNewElasticsearchClient().pushLogEvents(normalizedLog)
 	}
+
 }

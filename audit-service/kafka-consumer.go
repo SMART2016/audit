@@ -3,10 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/segmentio/kafka-go"
 	"log"
-	"strings"
 )
 
 func consumeKafkaMessages(brokers []string, topic string) <-chan string {
@@ -36,15 +34,4 @@ func consumeKafkaMessages(brokers []string, topic string) <-chan string {
 	}()
 
 	return outChan
-}
-
-func createElasticsearchClient(addresses string) *elasticsearch.Client {
-	cfg := elasticsearch.Config{
-		Addresses: strings.Split(addresses, ","),
-	}
-	es, err := elasticsearch.NewClient(cfg)
-	if err != nil {
-		log.Fatalf("Error creating the client: %s", err)
-	}
-	return es
 }

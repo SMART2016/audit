@@ -3,6 +3,8 @@ filebeat.inputs:
     enabled: true
     paths:
       - /var/log/app_logs/service.log  # Adjust to your log file location
+    close_inactive: 8760h
+    scan_frequency: 10s
     fields:
       app: audit-service
     fields_under_root: true
