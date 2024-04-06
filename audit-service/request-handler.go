@@ -25,12 +25,29 @@ func health(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("I am Healthy")
 }
 
+/*
+*
+POST http://localhost:9191/audit-service/v1/logevents
+
+	Payload: {
+	  "type":"user-service",
+	  "es_query":{"query": {
+	    "range": {
+	      "time": {
+	        "gte": "now-24h",
+	        "lte": "now"
+	      }
+	    }
+	  }
+	  }
+	}
+*/
 func submitQuery(w http.ResponseWriter, r *http.Request) {
 	esClient := getNewElasticsearchClient()
-
 	var query map[string]interface{}
 	json.NewDecoder(r.Body).Decode(&query)
-	b, err := json.Marshal(query)
+	fmt.Println("query", query)
+	b, err := json.Marshal(query["es_query"].(map[string]interface{}))
 	if err != nil {
 		panic(err)
 	}

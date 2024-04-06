@@ -36,9 +36,8 @@ func main() {
 	logNormalizer := LogNormalizer{make(map[string]string)}
 	logNormalizer.registerLogPatterns(USER_SERVICE_LOG_TYPE, USER_SERVICE_LOG_PATTERN)
 	// Starting Audit-service API
-	go http.ListenAndServe(":9191", Router{}.getRoutes())
+	http.ListenAndServe(":9191", Router{}.getRoutes())
 
 	//Starting Audit service kafka consumer for log events from various sources.
 	startKafkaConsumer(logNormalizer)
-
 }
