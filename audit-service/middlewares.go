@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
+	"github.com/google/uuid"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -38,7 +38,10 @@ func LoginLoggerMiddleware(next http.HandlerFunc) http.HandlerFunc {
 				}
 			}
 		}
-		log.Printf("CurrentUser: %s,Role: %s, System: %s, Action: %s, IP: %s, Agent: %s, Time: %s, Status: Initiated\n",
+
+		requestID := getRequestId()
+		logMsg := fmt.Sprintf("RequestId: %s, CurrentUser: %s,Role: %s, System: %s, Action: %s, IP: %s, Agent: %s, Time: %s, Status: Initiated\n",
+			requestID,
 			query["username"],
 			getUserRole(query["username"].(string)),
 			serviceId,
@@ -46,6 +49,7 @@ func LoginLoggerMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			r.RemoteAddr,
 			r.UserAgent(),
 			time.Now().Format(time.RFC3339))
+		publishEventLogs(serviceId, logMsg)
 		r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 		next.ServeHTTP(w, r)
 	}
@@ -57,7 +61,9 @@ func LoggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		claims, _ := getClaimsAndTokenFromAuthzHeader(r)
 		serviceId := getServiceId(r.RequestURI)
-		log.Printf("CurrentUser: %s,Role: %s, System: %s, Action: %s, IP: %s, Agent: %s, Time: %s, Status: Initiated\n",
+		requestID := getRequestId()
+		logMsg := fmt.Sprintf("RequestId: %s, CurrentUser: %s,Role: %s, System: %s, Action: %s, IP: %s, Agent: %s, Time: %s, Status: Initiated\n",
+			requestID,
 			claims.Username,
 			claims.Role,
 			serviceId,
@@ -65,7 +71,7 @@ func LoggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			r.RemoteAddr,
 			r.UserAgent(),
 			time.Now().Format(time.RFC3339))
-
+		publishEventLogs(serviceId, logMsg)
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, "Failed to read request body", http.StatusInternalServerError)
@@ -150,4 +156,18 @@ func getServiceId(path string) string {
 
 	// Return an empty string if no non-empty part was found
 	return ""
+}
+
+// generates a unique uuid along with current time
+func getRequestId() string {
+	// Generate a timestamp
+	timestamp := time.Now().UTC().Format("20060102-150405.000")
+
+	// Generate a UUID
+	randomUUID := uuid.New().String()
+
+	// Concatenate the timestamp with the UUID
+	requestID := fmt.Sprintf("%s-%s", timestamp, randomUUID)
+
+	return requestID
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 func generateAndFilterQuery(originalQueryJSON string, filterMap map[string]interface{}) (string, error) {
@@ -9,7 +10,7 @@ func generateAndFilterQuery(originalQueryJSON string, filterMap map[string]inter
 	if originalQueryJSON == "" {
 		originalQueryJSON = `{"query": {"range": {"time": {"gte": "now-48h","lte": "now"}}}}`
 	}
-
+	fmt.Println("filterMap =", filterMap)
 	// Unmarshal the original query into a map
 	var originalQueryMap map[string]interface{}
 	err := json.Unmarshal([]byte(originalQueryJSON), &originalQueryMap)

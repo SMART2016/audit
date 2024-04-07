@@ -15,7 +15,7 @@ func (r Router) getRoutes() *mux.Router {
 
 	authRouter := router.PathPrefix("/auth-service/v1").Subrouter()
 	authRouter.HandleFunc("/register", AuthMiddleware(LoggingMiddleware(RegisterNewUserHandler))).Methods("POST")
-	authRouter.HandleFunc("/unsafe/register", LoginLoggerMiddleware(RegisterNewUserHandler)).Methods("POST")
+	authRouter.HandleFunc("/unsafe/register", RegisterNewUserHandler).Methods("POST")
 	authRouter.HandleFunc("/login", LoginLoggerMiddleware(LoginHandler)).Methods("POST")
 	authRouter.HandleFunc("/health", AuthMiddleware(LoggingMiddleware(health))).Methods("GET")
 	authRouter.HandleFunc("/users", AuthMiddleware(LoggingMiddleware(GetUsersHandler))).Methods("GET")

@@ -61,7 +61,7 @@ func submitQuery(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-	AttributeFilterMap["currentUser"] = claims.Username
+	AttributeFilterMap["CurrentUser"] = claims.Username
 	queryStr, err = generateAndFilterQuery(queryStr, AttributeFilterMap)
 	resp, err := esClient.submitQuery(queryStr)
 	if err != nil {

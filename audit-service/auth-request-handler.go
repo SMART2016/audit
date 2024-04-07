@@ -21,8 +21,8 @@ var userRoles = map[string]string{}
 
 // Role to permitted attribute mapping , could be done better
 var rolePermissions = map[string][]string{
-	ROLE_ADMIN: {"user-service", "monitoring-service", "auth-service"}, // Admins can access any system
-	ROLE_USER:  {"monitoring-service", "auth-service"},                 // Regular users can only access monitoring-service logs
+	ROLE_ADMIN: {"auth-service", "audit-service"}, // Admins can access any system
+	ROLE_USER:  {"auth-service", "audit-service"}, // Regular users can only access monitoring-service logs
 }
 
 // Role to Permitted API mapping, Method could also be added
@@ -160,7 +160,7 @@ func hasAPIAccess(role string, r *http.Request) bool {
 func checkAttributeAccess(role string, system interface{}) (bool, map[string]interface{}) {
 	AttributeFilterMap := map[string]interface{}{}
 	permitted := false
-	AttributeFilterMap["system.keyword"] = system
+	AttributeFilterMap["System.keyword"] = system
 	if system != nil {
 		if permittedSystems, ok := rolePermissions[role]; ok {
 			for _, s := range permittedSystems {

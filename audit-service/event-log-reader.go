@@ -6,21 +6,25 @@ import (
 	"github.com/segmentio/kafka-go"
 	auditlog "github.com/sirupsen/logrus"
 	"log"
+	"strings"
 )
 
 func startKafkaConsumer(logNormalizer LogNormalizer) {
 	brokers := []string{"localhost:9093"}
 	topic := "log_events_topic"
 	logsChan := consumeKafkaMessages(brokers, topic)
-	for logMsg := range logsChan {
+	for msgMap := range logsChan {
 		// Normalize your log message
-		normalizedLog := logNormalizer.normalizeLog(USER_SERVICE_LOG_TYPE, logMsg)
-		auditlog.Info(normalizedLog)
-		getNewElasticsearchClient().pushLogEvents(normalizedLog)
+		normalizedLog := logNormalizer.normalizeLog(msgMap["msgType"].(string), string(msgMap["value"].([]byte)))
+		fmt.Println("normalizedLog = ", normalizedLog)
+		if !strings.EqualFold(normalizedLog, "{}") {
+			auditlog.Info(normalizedLog)
+			getNewElasticsearchClient().pushLogEvents(normalizedLog)
+		}
 	}
 }
 
-func consumeKafkaMessages(brokers []string, topic string) <-chan string {
+func consumeKafkaMessages(brokers []string, topic string) <-chan map[string]interface{} {
 	r := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:   brokers,
 		Topic:     topic,
@@ -31,18 +35,20 @@ func consumeKafkaMessages(brokers []string, topic string) <-chan string {
 	})
 	r.SetOffset(kafka.LastOffset)
 
-	outChan := make(chan string)
+	outChan := make(chan map[string]interface{})
 
 	go func() {
 		defer r.Close()
 		for {
 			m, err := r.ReadMessage(context.Background())
-			fmt.Println(string(m.Value))
 			if err != nil {
 				log.Printf("error while receiving message: %s\n", err.Error())
 				continue
 			}
-			outChan <- string(m.Value)
+			msgMap := map[string]interface{}{}
+			msgMap["value"] = m.Value
+			msgMap["msgType"] = string(m.Key)
+			outChan <- msgMap
 		}
 	}()
 

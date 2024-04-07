@@ -7,8 +7,11 @@ import (
 )
 
 const (
-	USER_SERVICE_LOG_TYPE    = "user-service"
-	USER_SERVICE_LOG_PATTERN = `CurrentUser: %{WORD:currentUser}, System: %{USERNAME:system}, Action: %{WORD:action}, IP: \[%{IPV6:ip}\]:%{NUMBER:port}, Agent: %{GREEDYDATA:agent}, Time: %{TIMESTAMP_ISO8601:time}`
+	USER_SERVICE_LOG_TYPE  = "user-service"
+	AUTH_SERVICE_LOG_TYPE  = "auth-service"
+	AUDIT_SERVICE_LOG_TYPE = "audit-service"
+	SERVICE_LOG_PATTERN    = `RequestId: %{DATA:RequestId}, CurrentUser: %{DATA:CurrentUser},Role: %{DATA:Role}, System: %{DATA:System}, Action: %{DATA:Action}, IP: \[%{IP:IP}\]:%{NUMBER:Port}, Agent: %{DATA:Agent}, Time: %{TIMESTAMP_ISO8601:Time}, Status: %{DATA:Status}
+`
 )
 
 var logger lumberjack.Logger
@@ -33,11 +36,19 @@ func init() {
 }
 
 func main() {
+	// register Pattern for all Log types
 	logNormalizer := LogNormalizer{make(map[string]string)}
-	logNormalizer.registerLogPatterns(USER_SERVICE_LOG_TYPE, USER_SERVICE_LOG_PATTERN)
+	logPatternRegistration(logNormalizer)
+
 	// Starting Audit-service API
 	go http.ListenAndServe(":9191", Router{}.getRoutes())
 
 	//Starting Audit service kafka consumer for log events from various sources.
 	startKafkaConsumer(logNormalizer)
+}
+
+func logPatternRegistration(normalizer LogNormalizer) {
+	normalizer.registerLogPatterns(USER_SERVICE_LOG_TYPE, SERVICE_LOG_PATTERN)
+	normalizer.registerLogPatterns(AUTH_SERVICE_LOG_TYPE, SERVICE_LOG_PATTERN)
+	normalizer.registerLogPatterns(AUDIT_SERVICE_LOG_TYPE, SERVICE_LOG_PATTERN)
 }
