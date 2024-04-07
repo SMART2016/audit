@@ -40,18 +40,18 @@ func logResponseMiddleware(next http.Handler) http.Handler {
 
 		// Call the next handler with our wrapped writer
 		next.ServeHTTP(wrappedWriter, r)
-
+		
 		userName, role, err := getUserClaims(*wrappedWriter, r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		// After the handler has written to the response, log the details
-		requestID := getRequestId()
+
 		serviceId := getServiceId(r.RequestURI)
 
 		logMsg := fmt.Sprintf("RequestId: %s, CurrentUser: %s,Role: %s, System: %s, Action: %s, IP: %s, Agent: %s, Time: %s, Status: %d.\n",
-			requestID,
+			"0",
 			userName,
 			role,
 			serviceId,

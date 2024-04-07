@@ -108,7 +108,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set expiration time for the token
-	expirationTime := time.Now().Add(3000 * time.Minute)
+	expirationTime := time.Now().Add(10 * time.Minute)
 	claims := &Claims{
 		Username: creds.Username,
 		Role:     userRoles[creds.Username],

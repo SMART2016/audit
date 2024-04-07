@@ -51,8 +51,10 @@ func LoginLoggerMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			time.Now().Format(time.RFC3339))
 		//fmt.Println(logMsg)
 		publishEventLogs(serviceId, logMsg)
+		ctx := r.Context()
+		ctx = context.WithValue(r.Context(), "requestId", requestID)
 		r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }
 
@@ -79,8 +81,11 @@ func LoggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			http.Error(w, "Failed to read request body", http.StatusInternalServerError)
 			return
 		}
+
+		ctx := r.Context()
+		ctx = context.WithValue(r.Context(), "requestId", requestID)
 		r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }
 
