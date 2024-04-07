@@ -49,6 +49,7 @@ func LoginLoggerMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			r.RemoteAddr,
 			r.UserAgent(),
 			time.Now().Format(time.RFC3339))
+		//fmt.Println(logMsg)
 		publishEventLogs(serviceId, logMsg)
 		r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 		next.ServeHTTP(w, r)
@@ -71,6 +72,7 @@ func LoggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			r.RemoteAddr,
 			r.UserAgent(),
 			time.Now().Format(time.RFC3339))
+		//fmt.Println(logMsg)
 		publishEventLogs(serviceId, logMsg)
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {

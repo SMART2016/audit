@@ -34,12 +34,13 @@ func init() {
 	auditlog.SetFormatter(&auditlog.JSONFormatter{})
 
 }
-
+func mainHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("This is the main handler\n"))
+}
 func main() {
 	// register Pattern for all Log types
 	logNormalizer := LogNormalizer{make(map[string]string)}
 	logPatternRegistration(logNormalizer)
-
 	// Starting Audit-service API
 	go http.ListenAndServe(":9191", Router{}.getRoutes())
 

@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	log "github.com/sirupsen/logrus"
 	"github.com/vjeantet/grok"
 )
@@ -22,7 +21,6 @@ func (l *LogNormalizer) normalizeLog(logtype string, logMsg string) string {
 	}
 
 	pattern := l.patternMap[logtype]
-	fmt.Println("pattern =", pattern)
 	values, err := g.Parse(pattern, logMsg)
 	if err != nil {
 		log.Printf("Failed to parse log message: %s", err)

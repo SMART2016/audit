@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/segmentio/kafka-go"
 	auditlog "github.com/sirupsen/logrus"
 	"log"
@@ -16,7 +15,6 @@ func startKafkaConsumer(logNormalizer LogNormalizer) {
 	for msgMap := range logsChan {
 		// Normalize your log message
 		normalizedLog := logNormalizer.normalizeLog(msgMap["msgType"].(string), string(msgMap["value"].([]byte)))
-		fmt.Println("normalizedLog = ", normalizedLog)
 		if !strings.EqualFold(normalizedLog, "{}") {
 			auditlog.Info(normalizedLog)
 			getNewElasticsearchClient().pushLogEvents(normalizedLog)
