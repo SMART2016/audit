@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -68,7 +67,6 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func health(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Hello User")
 	logRequestDetails(r, "HEALTH", service_id)
 	json.NewEncoder(w).Encode("I am Healthy")
 }

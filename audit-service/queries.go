@@ -1,82 +1,52 @@
 package main
 
-const (
-	QUERY1 = `{
-        "query": {
-            "range": {
-                "time": {
-                    "gte": "now-10m",
-                    "lte": "now"
-                }
-            }
-        }
-    }`
-	QUERY2 = `{
-  "query": {
-    "bool": {
-      "must": [
-        {
-          "match": {
-            "action": "HEALTH"
-          }
-        },
-        {
-          "match": {
-            "system": "user-service"
-          }
-        }
-      ]
-    }
-  },
-  "_source": true
-}
-
-`
-	QUERY3 = `{"query":{"bool":{"must":[{"match":{"action":"HEALTH"}},{"match":{"system":"user-service"}},{"range":{"time":{"gte":"2024-04-06T00:00:00+05:30","lte":"2024-04-06T23:59:59+05:30"}}}],"should":[{"match":{"currentUser":"Dipanjan"}}],"minimum_should_match":1}}}`
-	QUERY4 = `{
-  "query": {
-    "bool": {
-      "must": [
-        {
-          "match": {
-            "action": "HEALTH"
-          }
-        },
-        {
-          "match": {
-            "system": "user-service"
-          }
-        },
-        {
-          "range": {
-            "time": {
-             "gte": "now-24h", // 5 minutes ago
-             "lte": "now"
-            }
-          }
-        }
-      ],
-      "should": [
-        {
-          "match": {
-            "currentUser": "Dipanjan"
-          }
-        }
-      ],
-      "minimum_should_match": 1
-    }
-  }
-}`
-
-	QUERY5 = `
-					{
-					  "query": {
-						"range": {
-						  "time": {
-							"gte": "now-24h",
-							"lte": "now"
-						  }
-						}
-					  }
-					}`
+import (
+	"encoding/json"
 )
+
+func generateAndFilterQuery(originalQueryJSON string, filterMap map[string]interface{}) (string, error) {
+	// Original query JSON
+	if originalQueryJSON == "" {
+		originalQueryJSON = `{"query": {"range": {"time": {"gte": "now-48h","lte": "now"}}}}`
+	}
+
+	// Unmarshal the original query into a map
+	var originalQueryMap map[string]interface{}
+	err := json.Unmarshal([]byte(originalQueryJSON), &originalQueryMap)
+	if err != nil {
+		panic(err) // Handle error appropriately
+	}
+
+	// Define the additional conditions to be added
+	filterLst := []interface{}{}
+	for k, v := range filterMap {
+		filterLst = append(filterLst, map[string]interface{}{
+			"match": map[string]interface{}{
+				k: v,
+			},
+		})
+	}
+
+	// Insert the additional conditions into the original query map
+	// Check if a bool query needs to be constructed
+	if query, exists := originalQueryMap["query"].(map[string]interface{}); exists {
+		// Construct the bool query with the original range query and additional conditions
+		boolQuery := map[string]interface{}{
+			"bool": map[string]interface{}{
+				"must": append(filterLst, query),
+			},
+		}
+
+		// Replace the original query with the new bool query
+		originalQueryMap["query"] = boolQuery
+	} else {
+		panic("Unexpected structure of original query") // Handle appropriately
+	}
+
+	// Marshal the modified query map back to JSON to see the result
+	modifiedQueryJSON, err := json.MarshalIndent(originalQueryMap, "", "  ")
+	if err != nil {
+		panic(err) // Handle error appropriately
+	}
+	return string(modifiedQueryJSON), nil
+}

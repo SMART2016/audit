@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"log"
@@ -52,6 +53,7 @@ func (es *EsClient) pushLogEvents(logMsg string) {
 }
 
 func (es *EsClient) submitQuery(query string) ([]byte, error) {
+	fmt.Println("ES Query to Submit = ", query)
 	req := esapi.SearchRequest{
 		Index:  []string{"index-log-events*"}, // Adjust with your index pattern
 		Body:   strings.NewReader(query),
@@ -69,7 +71,7 @@ func (es *EsClient) submitQuery(query string) ([]byte, error) {
 		json.NewDecoder(res.Body).Decode(&r)
 
 	} else {
-	
+
 		// Parse the response body
 		var r map[string]interface{}
 		if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
