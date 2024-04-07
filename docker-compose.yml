@@ -35,7 +35,7 @@ services:
     container_name: filebeat
     volumes:
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
-      - ./audit-service/service.log:/var/log/app_logs/service.log
+      - ./audit-service/logs:/var/log/app_logs
     environment:
       - ELASTICSEARCH_HOSTS=https://elasticsearch:9200
     networks:

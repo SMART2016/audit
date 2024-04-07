@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -61,7 +62,12 @@ func submitQuery(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-	AttributeFilterMap["CurrentUser"] = claims.Username
+
+	//Except admin all should be able to see events of there own no one elses.
+	if !strings.EqualFold(claims.Role, ROLE_ADMIN) {
+		AttributeFilterMap["CurrentUser"] = claims.Username
+	}
+
 	queryStr, err = generateAndFilterQuery(queryStr, AttributeFilterMap)
 	resp, err := esClient.submitQuery(queryStr)
 	if err != nil {

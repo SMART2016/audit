@@ -14,10 +14,10 @@ const (
 )
 
 // username:password storage
-var users = map[string]string{}
+var users = map[string]string{"admin": "admin"}
 
 // username:role storage
-var userRoles = map[string]string{}
+var userRoles = map[string]string{"admin": "admin"}
 
 // Role to permitted attribute mapping , could be done better
 var rolePermissions = map[string][]string{
