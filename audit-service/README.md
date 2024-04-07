@@ -1,3 +1,8 @@
+## API documentation and Usage
+- Run the service by going one folder up and firing docker compose up --build
+- Ones all the services are up and running, you can click on the below link , that will show the swagger UI , from where you can directly open postman and start using the API's
+- https://documenter.getpostman.com/view/5673453/2sA35MyJQV
+
 ## ES queries
 
 QUERY1 = `{
@@ -108,3 +113,4 @@ QUERY6 = `{
 }
 }
 `
+
