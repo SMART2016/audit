@@ -13,6 +13,8 @@
   - Normalises the event log messages using a configured pattern as per the source system that generated the logs. The source system can register ther log patterns, which will be used while normalizing the respective logs.
     - Using a `grok` library to handle normalization right now. `[log-normalizer.go]`
   - After normalising the log messages they are pushed to the event store `(elastic search)`, where the audit log events are indexed and stored for better querying. `[event-store-client.go]`
+    - Elastic Search Index Schema:
+        > ``
     - **Design Note:** Elastic search is scalable document store , where we can query documents efficiently based on their fields and also on different time ranges.
   - The Audit service has exposed api's to query the events logs by registered users base on their permissions.
     - [API definitions](#api_definitions)
