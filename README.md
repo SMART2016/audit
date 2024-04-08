@@ -1,11 +1,11 @@
 ## Design
 ### High Level Design
-![Alt text](github.com/SMART2016/audit/docs/System Designs-Audit Logs.jpg?raw=true "High Level Design")
+![Alt text](./docs/System Designs-Audit Logs.jpg)
 
 #### Design Flow
 - Internal service raise audit events in a specific form and publish to message broker (Kafka here)
-  - Current pattern for the Logs are 
-   >RequestId: 0, CurrentUser: admin,Role: admin, System: auth-service, Action: POST:/auth-service/v1/login, IP: [::1]:55533, Agent: PostmanRuntime/7.37.3, Time: 2024-04-08T09:03:03+05:30, Status: 200
+  - Current pattern for the Logs are
+  >RequestId: 0, CurrentUser: admin,Role: admin, System: auth-service, Action: POST:/auth-service/v1/login, IP: 172.22.0.1:56148, Agent: PostmanRuntime/7.37.3, Time: 2024-04-08T09:03:03+05:30, Status: 200
   - **Design Notes** It is better to allow services write there audit logs in a WAL and asynchronously sync the WAL's to elastic search using some agent like fluentbit or filebeat.
   - Log rotation is enabled using logrun in the current service implementation and also , filebeat handles file rotation with itself.
 - Audit service subscribing to the kafka topic named: `log_events_topic`, picks audit log events from the topic and does below operations `[event-log-reader.go]`
@@ -16,7 +16,7 @@
   - The Audit service has exposed api's to query the events logs by registered users base on their permissions.
     - [API definitions](#api_definitions)
     - Code flow is as below for API
-   > main.go --> router --> middlewares.go --> audit-request-handler.go and auth-request-handler.go --> response-log-handler.go
+  > main.go --> router --> middlewares.go --> audit-request-handler.go and auth-request-handler.go --> response-log-handler.go
 
 ### TODO's
 - Refactor the code to be more readable.
@@ -34,26 +34,26 @@
 
 - It is assumme that docker and docker compose is installed locally if not follow the link to install docker https://download.docker.com/linux/ubuntu or run the script in ./docs/install-docker.sh
 - Navigate to the cloned repo for audit
-    > cd audit
+  > cd audit
 - Run below command to start the AUdit service and all dependent services.
-    > docker compose up --build
+  > docker compose up --build
   - --build flag will force to build the image of the audit-service every time, so if it is already done once , from next time just run below command to start all services locally.
-      > docker compose up
+    > docker compose up
 #### Sending request to Audit Service
 - To send request for loggin in to the Audit service and Fetch data, below are the detail information:
   - The service already has an admin user pre configured , so that we can create other users with the admin.
     - Default username : admin and password: admin.
   - Right now could not generate Swagger from the API's, but this link will provide definition of all API's
     - https://documenter.getpostman.com/view/5673453/2sA35MyJQV, open the link and there will be a button at the top right corner to open them with postman as below:
-    ![Alt text](./docs/Screenshot 2024-04-08 at 11.22.25 AM.png?raw=true "High Level Design")
+      ![Alt text](./docs/Screenshot 2024-04-08 at 11.22.25 AM.png?raw=true "High Level Design")
     - **Design NOTE:**  In ideal case the swagger definition needs to be generated before implementation , agreed upon between legit clients and then start the implementation.
- 
+
 #### <a name="api_definitions"></a>API definitions
 - Link : https://documenter.getpostman.com/view/5673453/2sA35MyJQV
 - API's at high level: **API's ate protected and Need user token**
   - GET /audit-service/v1/health
   - Submit log events query
-    - POST /audit-service/v1/logevents  
+    - POST /audit-service/v1/logevents
   - /auth-service/v1/register
   - /auth-service/v1/users
   - /auth-service/v1/health
