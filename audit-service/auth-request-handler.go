@@ -27,8 +27,8 @@ var rolePermissions = map[string][]string{
 
 // Role to Permitted API mapping, Method could also be added
 var apiPermissions = map[string]map[string]string{
-	ROLE_ADMIN: {"/audit-service/v1/Health": "audit_svc_health", "/audit-service/v1/logevents": "audit_svc_log_event", "/auth-service/v1/register": "auth_svc_registration", "/auth-service/v1/login": "auth_svc_login", "/auth-service/v1/users": "auth_svc_users_list", "/auth-service/v1/Health": "auth_svc_health"}, // Admins can access any system
-	ROLE_USER:  {"/audit-service/v1/Health": "audit_svc_health", "/auth-service/v1/login": "auth_svc_login", "/audit-service/v1/logevents": "audit_svc_log_event"},                                                                                                                                                      // Regular users can only access monitoring-service logs
+	ROLE_ADMIN: {"/audit-service/v1/health": "audit_svc_health", "/audit-service/v1/logevents": "audit_svc_log_event", "/auth-service/v1/register": "auth_svc_registration", "/auth-service/v1/login": "auth_svc_login", "/auth-service/v1/users": "auth_svc_users_list", "/auth-service/v1/health": "auth_svc_health"}, // Admins can access any system
+	ROLE_USER:  {"/audit-service/v1/health": "audit_svc_health", "/auth-service/v1/login": "auth_svc_login", "/audit-service/v1/logevents": "audit_svc_log_event"},                                                                                                                                                      // Regular users can only access monitoring-service logs
 }
 
 // JWT secret (store securely in a real application)

@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"github.com/segmentio/kafka-go"
 	"log"
-	"time"
 )
 
 const (
-	kafkaTopic   = "log_events_topic"
-	kafkaBroker  = "kafka:9092"
-	kafkaTimeout = 10 * time.Second
+	kafkaTopic  = "log_events_topic"
+	kafkaBroker = "kafka:9092"
 )
 
 func publishEventLogs(logType string, logMsg string) {

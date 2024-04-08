@@ -8,6 +8,12 @@ import (
 	"strings"
 )
 
+const (
+	KAFKA_BROKER         = "kafka:9092"
+	KAFKA_TOPIC          = "log_events_topic"
+	KAFKA_CONSUMER_GROUP = "audit-service"
+)
+
 type EventLogNormalizer interface {
 	RegisterLogPatterns(logtype string, pattern string)
 	NormalizeLog(logtype string, logMsg string) string
@@ -19,8 +25,8 @@ type LogEventStoreClient interface {
 }
 
 func startKafkaConsumer(logNormalizer EventLogNormalizer, eventStore LogEventStoreClient) {
-	brokers := []string{"kafka:9092"}
-	topic := "log_events_topic"
+	brokers := []string{KAFKA_BROKER}
+	topic := KAFKA_TOPIC
 	logsChan := consumeKafkaMessages(brokers, topic)
 	for msgMap := range logsChan {
 		// Normalize your log message
@@ -37,7 +43,7 @@ func consumeKafkaMessages(brokers []string, topic string) <-chan map[string]inte
 	r := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:   brokers,
 		Topic:     topic,
-		GroupID:   "audit-service",
+		GroupID:   KAFKA_CONSUMER_GROUP,
 		Partition: 0,
 		MinBytes:  10e3, // 10KB
 		MaxBytes:  10e6, // 10MB
