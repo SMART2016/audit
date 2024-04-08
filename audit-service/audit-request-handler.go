@@ -19,7 +19,7 @@ func logRequestDetails(r *http.Request, action string, serviceId string) {
 		time.Now().Format(time.RFC3339))
 }
 
-func health(w http.ResponseWriter, r *http.Request) {
+func Health(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Hello User")
 	json.NewEncoder(w).Encode("I am Healthy")
 }
@@ -41,7 +41,7 @@ POST http://localhost:9191/audit-service/v1/logevents
 	  }
 	}
 */
-func submitQuery(w http.ResponseWriter, r *http.Request) {
+func SubmitQuery(w http.ResponseWriter, r *http.Request) {
 	esClient := getNewElasticsearchClient()
 	var query map[string]interface{}
 

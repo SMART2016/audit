@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	ES_ADDRESS = "http://localhost:9200"
+	ES_ADDRESS = "http://elasticsearch:9200"
 )
 
 type EsClient struct {

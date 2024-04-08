@@ -19,7 +19,7 @@ type LogEventStoreClient interface {
 }
 
 func startKafkaConsumer(logNormalizer EventLogNormalizer, eventStore LogEventStoreClient) {
-	brokers := []string{"localhost:9093"}
+	brokers := []string{"kafka:9092"}
 	topic := "log_events_topic"
 	logsChan := consumeKafkaMessages(brokers, topic)
 	for msgMap := range logsChan {

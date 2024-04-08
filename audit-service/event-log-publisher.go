@@ -10,7 +10,7 @@ import (
 
 const (
 	kafkaTopic   = "log_events_topic"
-	kafkaBroker  = "localhost:9093"
+	kafkaBroker  = "kafka:9092"
 	kafkaTimeout = 10 * time.Second
 )
 
