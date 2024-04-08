@@ -8,16 +8,27 @@ import (
 	"strings"
 )
 
-func startKafkaConsumer(logNormalizer LogNormalizer) {
+type EventLogNormalizer interface {
+	RegisterLogPatterns(logtype string, pattern string)
+	NormalizeLog(logtype string, logMsg string) string
+}
+
+type LogEventStoreClient interface {
+	SubmitQuery(query string) ([]byte, error)
+	PushLogEvents(logMsg string)
+}
+
+func startKafkaConsumer(logNormalizer EventLogNormalizer, eventStore LogEventStoreClient) {
 	brokers := []string{"localhost:9093"}
 	topic := "log_events_topic"
 	logsChan := consumeKafkaMessages(brokers, topic)
 	for msgMap := range logsChan {
 		// Normalize your log message
-		normalizedLog := logNormalizer.normalizeLog(msgMap["msgType"].(string), string(msgMap["value"].([]byte)))
+		normalizedLog := logNormalizer.NormalizeLog(msgMap["msgType"].(string), string(msgMap["value"].([]byte)))
 		if !strings.EqualFold(normalizedLog, "{}") {
 			auditlog.Info(normalizedLog)
-			getNewElasticsearchClient().pushLogEvents(normalizedLog)
+			eventStore.PushLogEvents(normalizedLog)
+			//getNewElasticsearchClient().PushLogEvents(normalizedLog)
 		}
 	}
 }

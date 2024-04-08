@@ -32,7 +32,7 @@ func getNewElasticsearchClient() *EsClient {
 	return &EsClient{es}
 }
 
-func (es *EsClient) pushLogEvents(logMsg string) {
+func (es *EsClient) PushLogEvents(logMsg string) {
 	// Push to Elasticsearch
 	req := esapi.IndexRequest{
 		Index:      "index-log-events",
@@ -52,7 +52,7 @@ func (es *EsClient) pushLogEvents(logMsg string) {
 	}
 }
 
-func (es *EsClient) submitQuery(query string) ([]byte, error) {
+func (es *EsClient) SubmitQuery(query string) ([]byte, error) {
 	fmt.Println("ES Query to Submit = ", query)
 	req := esapi.SearchRequest{
 		Index:  []string{"index-log-events*"}, // Adjust with your index pattern

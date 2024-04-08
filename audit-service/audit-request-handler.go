@@ -69,7 +69,7 @@ func submitQuery(w http.ResponseWriter, r *http.Request) {
 	}
 
 	queryStr, err = generateAndFilterQuery(queryStr, AttributeFilterMap)
-	resp, err := esClient.submitQuery(queryStr)
+	resp, err := esClient.SubmitQuery(queryStr)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
