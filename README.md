@@ -1,6 +1,6 @@
 ## Design
 ### High Level Design
-![Alt text](/docs/System Designs-Audit Logs.jpg?raw=true "High Level Design")
+![Alt text](github.com/SMART2016/audit/docs/System Designs-Audit Logs.jpg?raw=true "High Level Design")
 
 #### Design Flow
 - Internal service raise audit events in a specific form and publish to message broker (Kafka here)
