@@ -21,6 +21,17 @@
     - Code flow is as below for API
   > main.go --> router --> middlewares.go --> audit-request-handler.go and auth-request-handler.go --> response-log-handler.go
 
+#### Design Considerations
+- **Cross Platform Deployement**
+  - I have used containers for the system and deploying the system as a whole , Using container technologies like Docker, which encapsulate applications and their dependencies into a single container that can run on any system that supports the containerization platform, thereby abstracting away the underlying OS differences.
+- **Safeguarding Against Audit Tampering**
+  - Immutable Audit Logs , all event are new events written to the event store and only can be red via the expose api, no API to modify the event is exposed and by default event store used are inherently immutable.
+  - Implemented access control right now on a crude level which can be made better with policy based ABAC and implementing access control on the event store level as well.
+  - Secure Architecture and Isolation should isolated and deployed on seperate security boundaries and subnets where access to the system can be managed based on least privilage or zero trust principle.
+  - backup and archival of the log events in the event store should be implemented.
+- **Scalable Deployment**
+  - The implementation is containerised and stateless , the system carrying state the event store is highly scalable and distributed datastore system.
+
 ### TODO's
 - Refactor the code to be more readable.
 - Use WAL and async event publish instead of using message publish to kafka
@@ -30,7 +41,6 @@
 - Implementing Authz and auth centrally using well know Oauth2 implementations.
   - Implement Policy based Authz for handling ABAC.
 - Audit log format changes , we will still have to support older logs and transform them to the new format , we cannot leave them or remove them.How much old log we need to keep depends on different compliance factors per domain or line of business.SO need to think on an effective way to handle that , right now i am normalising data to a specific format and this may work as well , as long as we can map incoming logs to this format.
-
 
 
 ### Running the service
