@@ -12,7 +12,7 @@
   - Normalises the event log messages using a configured pattern as per the source system that generated the logs. The source system can register ther log patterns, which will be used while normalizing the respective logs.
     - Using a `grok` library to handle normalization right now. `[log-normalizer.go]`
   - After normalising the log messages they are pushed to the event store `(elastic search)`, where the audit log events are indexed and stored for better querying. `[event-store-client.go]`
-    - **Design Note:** Elastic search is scalable document store , where we can query documents efficiently based on there fields and also on different time ranges.
+    - **Design Note:** Elastic search is scalable document store , where we can query documents efficiently based on their fields and also on different time ranges.
   - The Audit service has exposed api's to query the events logs by registered users base on their permissions.
     - [API definitions](#api_definitions)
     - Code flow is as below for API
@@ -32,7 +32,7 @@
 
 ### Running the service
 
-- It is assumme that docker and docker compose is installed locally if not follow the link to install docker https://download.docker.com/linux/ubuntu or run the script in ./docs/install-docker.sh
+- It is assumme that docker and docker compose is installed locally if not follow the link to install docker https://download.docker.com/linux/ubuntu or run the script in `./docs/install-docker.sh`
 - Navigate to the cloned repo for audit
   > cd audit
 - Run below command to start the AUdit service and all dependent services.
@@ -41,7 +41,7 @@
     > docker compose up
 #### Sending request to Audit Service
 - To send request for loggin in to the Audit service and Fetch data, below are the detail information:
-  - The service already has an admin user pre configured , so that we can create other users with the admin.
+  - The service already has an admin user pre-configured , so that we can create other users with the admin.
     - Default username : admin and password: admin.
   - Right now could not generate Swagger from the API's, but this link will provide definition of all API's
     - https://documenter.getpostman.com/view/5673453/2sA35MyJQV, open the link and there will be a button at the top right corner to open them with postman as below:
