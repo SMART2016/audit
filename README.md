@@ -8,6 +8,7 @@
   >RequestId: 0, CurrentUser: admin,Role: admin, System: auth-service, Action: POST:/auth-service/v1/login, IP: 172.22.0.1:56148, Agent: PostmanRuntime/7.37.3, Time: 2024-04-08T09:03:03+05:30, Status: 200
   - **Design Notes** It is better to allow services write there audit logs in a WAL and asynchronously sync the WAL's to elastic search using some agent like fluentbit or filebeat.
   - Log rotation is enabled using logrun in the current service implementation and also , filebeat handles file rotation with itself.
+- Current the Audit service itself will generate events as and when user performs some operation on the service via REST API.
 - Audit service subscribing to the kafka topic named: `log_events_topic`, picks audit log events from the topic and does below operations `[event-log-reader.go]`
   - Normalises the event log messages using a configured pattern as per the source system that generated the logs. The source system can register ther log patterns, which will be used while normalizing the respective logs.
     - Using a `grok` library to handle normalization right now. `[log-normalizer.go]`
@@ -44,12 +45,12 @@
   - The service already has an admin user pre-configured , so that we can create other users with the admin.
     - Default username : admin and password: admin.
   - Right now could not generate Swagger from the API's, but this link will provide definition of all API's
-    - https://documenter.getpostman.com/view/5673453/2sA35MyJQV, open the link and there will be a button at the top right corner to open them with postman as below:
+    - https://documenter.getpostman.com/view/5673453/2sA35MyeVe, open the link and there will be a button at the top right corner to open them with postman as below:
       ![Alt text](./docs/Screenshot 2024-04-08 at 11.22.25 AM.png?raw=true "High Level Design")
     - **Design NOTE:**  In ideal case the swagger definition needs to be generated before implementation , agreed upon between legit clients and then start the implementation.
 
 #### <a name="api_definitions"></a>API definitions
-- Link : https://documenter.getpostman.com/view/5673453/2sA35MyJQV
+- Link : https://documenter.getpostman.com/view/5673453/2sA35MyeVe
 - API's at high level: **API's ate protected and Need user token**
   - GET /audit-service/v1/health
   - Submit log events query
@@ -59,3 +60,41 @@
   - /auth-service/v1/health
   - **Unprotected API doesn't need user token**:
     - - /auth-service/v1/login
+
+#### Testing The system
+1. Login to the system using Admin user as below:
+    > `curl --location 'localhost:8080/auth-service/v1/login' \
+  --header 'Content-Type: application/json' \
+  --data '{
+           "username": "admin",
+           "password": "admin"
+  }'`
+   - This will respond with a token, use that token to execute rest of the requests
+2. Create a new user with `user` role as below:
+    > `curl --location 'http://localhost:8080/auth-service/v1/register' \
+  --header 'Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzEyNTYxMzkzfQ.PEmLTCX3_XXrLkbqEkNg6Zgqtr7jBfr5WUeG3u8xU_U' \
+  --header 'Content-Type: application/json' \
+  --data '{
+           "username":"rohan",
+           "password":"123456"
+  }'`
+
+3. Now use the token for the respective user `admin(Role: admin) or rohan(Role: user)` created above to fetch log events.
+    > `curl --location 'http://localhost:8080/audit-service/v1/logevents' \
+  --header 'Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzEyNTYxNjc4fQ.ZHRmRjVt4neKYw73AV-MiVkysv1rhfflanpd1aS-7gA' \
+  --header 'Content-Type: application/json' \
+  --data '{
+            "type":"auth-service",  
+            "es_query":{"query": {
+            "range": {
+            "Time": {
+                  "gte": "now-48h",
+                  "lte": "now"
+            }
+           }
+         }
+     }
+  }
+  '`
+   - Note the `type` attribute is something that is mandatory in this case and is used to identify permissions for the current user.
+   - Also except admin users can only see events that are generated because of their own action.
