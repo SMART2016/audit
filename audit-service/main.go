@@ -1,9 +1,10 @@
 package main
 
 import (
+	"net/http"
+
 	auditlog "github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
-	"net/http"
 )
 
 var logger lumberjack.Logger
@@ -34,7 +35,7 @@ func main() {
 	logNormalizer := &LogNormalizer{make(map[string]string)}
 	logPatternRegistration(logNormalizer)
 	// Starting Audit-service API
-	go http.ListenAndServe(":8181", Router{}.getRoutes())
+	go http.ListenAndServe(":8080", Router{}.getRoutes())
 
 	//Starting Audit service kafka consumer for log events from various sources.
 	eventStore := getNewElasticsearchClient()
