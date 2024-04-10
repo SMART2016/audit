@@ -2,14 +2,16 @@ package main
 
 import (
 	"context"
-	"github.com/segmentio/kafka-go"
-	auditlog "github.com/sirupsen/logrus"
 	"log"
 	"strings"
+
+	"github.com/segmentio/kafka-go"
+	auditlog "github.com/sirupsen/logrus"
 )
 
 const (
-	KAFKA_BROKER         = "kafka:9092"
+	KAFKA_BROKER = "kafka:9092"
+	//KAFKA_BROKER         = "localhost:9093"
 	KAFKA_TOPIC          = "log_events_topic"
 	KAFKA_CONSUMER_GROUP = "audit-service"
 )

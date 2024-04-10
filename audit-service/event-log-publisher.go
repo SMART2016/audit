@@ -3,13 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/segmentio/kafka-go"
 	"log"
+
+	"github.com/segmentio/kafka-go"
 )
 
 const (
 	kafkaTopic  = "log_events_topic"
 	kafkaBroker = "kafka:9092"
+	//kafkaBroker = "localhost:9093"
 )
 
 func publishEventLogs(logType string, logMsg string) {

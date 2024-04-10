@@ -4,16 +4,18 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/elastic/go-elasticsearch/v8"
-	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"log"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/elastic/go-elasticsearch/v8/esapi"
 )
 
 const (
 	ES_ADDRESS = "http://elasticsearch:9200"
+	//ES_ADDRESS = "http://localhost:9200"
 )
 
 type EsClient struct {
