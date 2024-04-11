@@ -5,58 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
-
-// Logger for Login middleware
-func LoginLoggerMiddleware(next http.HandlerFunc) http.HandlerFunc {
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		serviceId := getServiceId(r.RequestURI)
-
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, "Failed to read request body", http.StatusInternalServerError)
-			return
-		}
-
-		var query map[string]interface{}
-		if err = json.Unmarshal(body, &query); err != nil {
-			fmt.Println(err)
-		}
-		if r.RequestURI == "/auth-service/v1/register" {
-			userRole := getUserRole(query["username"].(string))
-			if strings.EqualFold(userRole, "") {
-				if query["role"] == ROLE_ADMIN {
-					userRole = ROLE_ADMIN
-				} else {
-					userRole = ROLE_USER
-				}
-			}
-		}
-
-		requestID := getRequestId()
-		logMsg := fmt.Sprintf("RequestId: %s, CurrentUser: %s,Role: %s, System: %s, Action: %s, IP: %s, Agent: %s, Time: %s, Status: Initiated\n",
-			requestID,
-			query["username"],
-			getUserRole(query["username"].(string)),
-			serviceId,
-			r.Method+":"+r.RequestURI,
-			r.RemoteAddr,
-			r.UserAgent(),
-			time.Now().Format(time.RFC3339))
-		//fmt.Println(logMsg)
-		publishEventLogs(serviceId, logMsg)
-		ctx := r.Context()
-		ctx = context.WithValue(r.Context(), "requestId", requestID)
-		r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-		next.ServeHTTP(w, r.WithContext(ctx))
-	}
-}
 
 // loggingMiddleware checks the JWT token and authorizes users
 func LoggingMiddleware(next http.HandlerFunc) http.HandlerFunc {

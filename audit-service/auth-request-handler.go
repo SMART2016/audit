@@ -3,9 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
 	"net/http"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
 const (
@@ -92,12 +93,7 @@ payload: {
 */
 // LoginHandler authenticates users and returns a JWT
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	var creds Credentials
-	err := json.NewDecoder(r.Body).Decode(&creds)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	creds := r.Context().Value(credentialsContextKey).(*Credentials)
 
 	expectedPassword, ok := users[creds.Username]
 
