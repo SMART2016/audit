@@ -38,7 +38,11 @@ func extractCredentials(authHeader string) (*Credentials, error) {
 // BasicAuthMiddleware decodes credentials and attaches them to the request context.
 func BasicAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
+		// Wrap the standard ResponseWriter with our custom writer
+		wrappedWriter := &responseWriter{
+			ResponseWriter: w,
+			statusCode:     http.StatusOK, // Default to 200 OK if not set explicitly
+		}
 		authHeader := r.Header.Get("Authorization")
 		if !strings.HasPrefix(authHeader, "Basic ") {
 			http.Error(w, "Invalid authorization header", http.StatusUnauthorized)
@@ -50,6 +54,7 @@ func BasicAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			http.Error(w, "Failed to decode credentials", http.StatusUnauthorized)
 			return
 		}
+
 		requestID := getRequestId()
 		serviceId := getServiceId(r.RequestURI)
 		logMsg := fmt.Sprintf("RequestId: %s, CurrentUser: %s,Role: %s, System: %s, Action: %s, IP: %s, Agent: %s, Time: %s, Status: Initiated\n",
@@ -66,5 +71,18 @@ func BasicAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		// Attach the credentials to the request context
 		ctx := context.WithValue(r.Context(), credentialsContextKey, creds)
 		next.ServeHTTP(w, r.WithContext(ctx))
+
+		logMsg = fmt.Sprintf("RequestId: %s, CurrentUser: %s,Role: %s, System: %s, Action: %s, IP: %s, Agent: %s, Time: %s, Status: %d.\n",
+			requestID,
+			creds.Username,
+			getUserRole(creds.Username),
+			serviceId,
+			r.Method+":"+r.RequestURI,
+			r.RemoteAddr,
+			r.UserAgent(),
+			time.Now().Format(time.RFC3339),
+			wrappedWriter.statusCode,
+		)
+		publishEventLogs(serviceId, logMsg)
 	})
 }

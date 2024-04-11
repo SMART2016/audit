@@ -17,6 +17,12 @@ import (
 func LoggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Wrap the standard ResponseWriter with our custom writer
+		wrappedWriter := &responseWriter{
+			ResponseWriter: w,
+			statusCode:     http.StatusOK, // Default to 200 OK if not set explicitly
+		}
+
 		claims, _ := getClaimsAndTokenFromAuthzHeader(r)
 		serviceId := getServiceId(r.RequestURI)
 		requestID := getRequestId()
@@ -31,6 +37,7 @@ func LoggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			time.Now().Format(time.RFC3339))
 		//fmt.Println(logMsg)
 		publishEventLogs(serviceId, logMsg)
+
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, "Failed to read request body", http.StatusInternalServerError)
@@ -40,7 +47,20 @@ func LoggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		ctx := r.Context()
 		ctx = context.WithValue(r.Context(), "requestId", requestID)
 		r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-		next.ServeHTTP(w, r.WithContext(ctx))
+		next.ServeHTTP(wrappedWriter, r.WithContext(ctx))
+
+		logMsg = fmt.Sprintf("RequestId: %s, CurrentUser: %s,Role: %s, System: %s, Action: %s, IP: %s, Agent: %s, Time: %s, Status: %d.\n",
+			requestID,
+			claims.Username,
+			claims.Role,
+			serviceId,
+			r.Method+":"+r.RequestURI,
+			r.RemoteAddr,
+			r.UserAgent(),
+			time.Now().Format(time.RFC3339),
+			wrappedWriter.statusCode,
+		)
+		publishEventLogs(serviceId, logMsg)
 	}
 }
 
