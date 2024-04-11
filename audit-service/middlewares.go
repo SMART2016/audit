@@ -45,7 +45,7 @@ func LoggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
 }
 
 // AuthMiddleware checks the JWT token and authorizes users
-func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
+func AuthorizationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		body, err := ioutil.ReadAll(r.Body)

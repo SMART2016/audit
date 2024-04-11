@@ -84,13 +84,8 @@
   }'`
    - This will respond with a token, use that token to execute rest of the requests
 2. Create a new user with `user` role as below:
-    > `curl --location 'http://localhost:8080/auth-service/v1/register' \
-  --header 'Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzEyNTYxMzkzfQ.PEmLTCX3_XXrLkbqEkNg6Zgqtr7jBfr5WUeG3u8xU_U' \
-  --header 'Content-Type: application/json' \
-  --data '{
-           "username":"rohan",
-           "password":"123456"
-  }'`
+    > curl --location --request POST 'localhost:8080/auth-service/v1/login' \
+     --header 'Authorization: Basic YWRtaW46YWRtaW4='
 
 3. Now use the token for the respective user `admin(Role: admin) or rohan(Role: user)` created above to fetch log events.
     > `curl --location 'http://localhost:8080/audit-service/v1/logevents' \
