@@ -43,6 +43,7 @@
 - Audit log format changes , we will still have to support older logs and transform them to the new format , we cannot leave them or remove them.How much old log we need to keep depends on different compliance factors per domain or line of business.SO need to think on an effective way to handle that , right now i am normalising data to a specific format and this may work as well , as long as we can map incoming logs to this format.
 - Right now the password is sent as plain text , we should apply encryption and store the password, instead of sending and storing in plain text at all for more secure data.
 - No unit tests added while unit tests should be present for any code that we write and that helps mkae the code more formatter and better and more moduler.
+- We should expose the API via LB and API gateway where we can handle the Authz centrally and also scale the audit service efficiently.
 
 ### Running the service
 
@@ -64,6 +65,7 @@
 
 #### <a name="api_definitions"></a>API definitions
 - Link : https://documenter.getpostman.com/view/5673453/2sA35MyeVe
+- The service should also be available on https://audit.smartlabs.site/
 - API's at high level: **API's ate protected and Need user token**
   - GET /audit-service/v1/health
   - Submit log events query
