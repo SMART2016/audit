@@ -1,5 +1,9 @@
 ## Design
 ### High Level Design
+<p align="center">
+  <img src="docs/System Designs-Audit Logs.jpg">
+  <br/>
+</p>
 ![Alt text](./docs/System Designs-Audit Logs.jpg)
 
 #### Design Flow
