@@ -4,7 +4,6 @@
   <img src="docs/System Designs-Audit Logs.jpg">
   <br/>
 </p>
-![Alt text](./docs/System Designs-Audit Logs.jpg)
 
 #### Design Flow
 - Internal service raise audit events in a specific form and publish to message broker (Kafka here)
@@ -64,7 +63,10 @@
     - Default username : admin and password: admin.
   - Right now could not generate Swagger from the API's, but this link will provide definition of all API's
     - https://documenter.getpostman.com/view/5673453/2sA35MyeVe, open the link and there will be a button at the top right corner to open them with postman as below:
-      ![Alt text](./docs/Screenshot 2024-04-08 at 11.22.25 AM.png?raw=true "High Level Design")
+      <p align="center">
+        <img src="docs/Screenshot 2024-04-08 at 11.22.25 AM.png">
+        <br/>
+      </p>
     - **Design NOTE:**  In ideal case the swagger definition needs to be generated before implementation , agreed upon between legit clients and then start the implementation.
 
 #### <a name="api_definitions"></a>API definitions
