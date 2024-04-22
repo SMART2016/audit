@@ -26,7 +26,7 @@ type LogEventStoreClient interface {
 	PushLogEvents(logMsg string)
 }
 
-func startKafkaConsumer(logNormalizer EventLogNormalizer, eventStore LogEventStoreClient) {
+func storeLogEvents(logNormalizer EventLogNormalizer, eventStore LogEventStoreClient) {
 	brokers := []string{KAFKA_BROKER}
 	topic := KAFKA_TOPIC
 	logsChan := consumeKafkaMessages(brokers, topic)

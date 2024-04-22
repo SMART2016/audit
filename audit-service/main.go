@@ -39,5 +39,5 @@ func main() {
 
 	//Starting Audit service kafka consumer for log events from various sources.
 	eventStore := getNewElasticsearchClient()
-	startKafkaConsumer(logNormalizer, eventStore)
+	storeLogEvents(logNormalizer, eventStore)
 }
