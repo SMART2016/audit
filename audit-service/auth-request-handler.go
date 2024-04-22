@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -126,30 +125,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 func getUserRole(username string) string {
 	return userRoles[username]
-}
-
-func getClaimsAndTokenFromAuthzHeader(r *http.Request) (*Claims, *jwt.Token) {
-	tokenString := r.Header.Get("Authorization")
-	claims := &Claims{}
-
-	token, _ := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		return jwtKey, nil
-	})
-	return claims, token
-}
-
-func hasAPIAccess(role string, r *http.Request) bool {
-	fmt.Println("role =", role, "   URI =", r.RequestURI, "  Perms=", rolePermissions[role], "  API Perms= ", apiPermissions[role])
-	var permitted bool
-	//First check if the user has permission for the API
-	if permittedApis, ok := apiPermissions[role]; ok {
-		if _, ok := permittedApis[r.RequestURI]; ok {
-			permitted = true
-		} else {
-			permitted = false
-		}
-	}
-	return permitted
 }
 
 // Used to identify the role to attribute permission
