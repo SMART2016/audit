@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
@@ -85,4 +87,35 @@ func BasicAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		)
 		publishEventLogs(serviceId, logMsg)
 	})
+}
+
+// AuthMiddleware checks the JWT token and authorizes users
+func AuthorizationMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Failed to read request body", http.StatusInternalServerError)
+			return
+		}
+		claims, token := getClaimsAndTokenFromAuthzHeader(r)
+		if err != nil || token == nil || !token.Valid {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		hasAccess := hasAPIAccess(claims.Role, r)
+		if !hasAccess {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, "username", claims.Username)
+		ctx = context.WithValue(ctx, "role", claims.Role)
+
+		r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+		next.ServeHTTP(w, r.WithContext(ctx))
+		// Pass the username and role to the next handler
+
+	}
 }
